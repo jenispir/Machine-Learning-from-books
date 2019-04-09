@@ -1,0 +1,121 @@
+# From the book "Hands-On Machine Learning with Scikit-Learn and Tensorflow
+# Chapter 6: Decision Trees
+# This also exists "https://github.com/ageron/handson-ml/blob/master/09_up_and_running_with_tensorflow.ipynb" link.
+# Link and book contains more explanations, more advantages.
+# Note: Before you try to judge or anything, I am not copycating, I just want to see my own process.
+# Created on Tue Apr  9 11:44:03 2019
+
+#--------------------------------------------------------------------------------------------------
+
+import tensorflow as tf
+
+x = tf.Variable(3, name="x")
+y = tf.Variable(4, name="y")
+f = x*x*y + y + 2
+
+sess = tf.Session()
+sess.run(x.initializer)
+sess.run(y.initializer)
+result = sess.run(f)
+print(result)
+sess.close()
+
+init = tf.global_variables_initializer()
+
+with tf.Session() as sess:
+    init.run()
+    result = f.eval()
+    
+sess = tf.InteractiveSession()
+init.run()
+result = f.eval()
+print(result)
+sess.close()
+
+
+w = tf.constant(3)
+x = w + 2
+y = x + 5
+z = x * 3
+
+with tf.Session() as sess:
+    print(y.eval())  # 10
+    print(z.eval())  # 15
+    
+# difference between these two, code below evaluate x and w values once, code above does it twice!
+with tf.Session() as sess:
+    y_val, z_val = sess.run([y, z])
+    print(y_val)  # 10
+    print(z_val)  # 15
+
+
+tf.reset_default_graph()
+
+n_epochs = 1000
+learning_rate = 0.01
+
+X = tf.constant(scaled_housing_data_plus_bias, dtype=tf.float32, name="X")
+y = tf.constant(housing.target.reshape(-1, 1), dtype=tf.float32, name="y")
+theta = tf.Variable(tf.random_uniform([n+1, 1], -1.0, 1.0, seed=42), name="theta")
+y_pred = tf.matmul(X, theta, name="predictions")
+error = y_pred - y
+mse = tf.reduce_mean(tf.square(error), name="mse")
+gradients = 2/m * tf.matmul(tf.transpose(X), error)
+training_op = tf.assign(theta, theta - learning_rate * gradients)
+
+init = tf.global_variables_initializer()
+
+with tf.Session() as sess:
+    sess.run(init)
+    
+    for epoch in range(n_epochs):
+        if epoch % 100 == 0:
+            print("Epoch", epoch, "MSE =", mse.eval())
+        sess.run(training_op)
+    
+    best_theta = theta.eval()
+    
+# Placeholder is great
+tf.reset_default_graph()
+
+A = tf.placeholder(tf.float32, shape=(None, 3))
+B = A + 5
+with tf.Session() as sess:
+    B_val_1 = B.eval(feed_dict={A: [[1,2,3]]})
+    B_val_2 = B.eval(feed_dict={A: [[4,5,6], [7,8,9]]})
+    B_val_3 = B.eval(feed_dict={A: [[10,11,12], [13,14,15], [16,17,18]]})
+    
+print(B_val_1)
+print(B_val_2)
+print(B_val_3)
+
+# TENSORBOARD
+tf.reset_default_graph()
+
+from datetime import datetime
+
+now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+root_logdir = "tflogs"
+logdir = "{}/run-{}/".format(root_logdir, now)
+n_epochs = 1000
+learning_rate = 0.01
+
+X = tf.placeholder(tf.float32, shape=(None, n+1), name="X")
+y = tf.placeholder(tf.float32, shape=(None, 1), name="y")
+theta = tf.Variable(tf.random_uniform([n+1, 1], -1.0, 1.0, seed=42), name="theta")
+y_pred = tf.matmul(X, theta, name="predictions")
+error = y_pred - y
+mse = tf.reduce_mean(tf.square(error), name="mse")
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate)
+training_op = optimizer.minimize(mse)
+
+init = tf.global_variables_initializer()
+
+mse_summary = tf.summary.scalar('MSE', mse)
+file_writer = tf.summary.FileWriter(logdir, tf.get_default_graph())    #FileWriter that you will use to write summaries to logfiles in the log directory
+
+n_epochs = 10
+batch_size = 100
+n_batches = int(np.ceil(m/batch_size))
+
+# TENSORBOARD IS AMAZINGGGGG
